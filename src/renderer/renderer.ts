@@ -1,39 +1,64 @@
-// This file handles the logic for our settings page (the renderer process).
+// This file handles the logic for the main chat interface.
 
-// We need to declare this global variable to TypeScript
+// --- Type Declarations for our API ---
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
 declare global {
   interface Window {
     electronAPI: {
-      saveApiKeys: (keys: { openai: string; gemini: string }) => Promise<void>;
-      getApiKeys: () => Promise<{ openai: string | null; gemini: string | null }>;
+      sendPrompt: (messages: ChatMessage[]) => Promise<ChatMessage>;
     }
   }
 }
 
-const openaiKeyInput = document.getElementById('openai-key') as HTMLInputElement;
-const geminiKeyInput = document.getElementById('gemini-key') as HTMLInputElement;
-const saveBtn = document.getElementById('save-btn');
-const statusMessage = document.getElementById('status-message');
+// --- DOM Elements ---
+const messagesDiv = document.getElementById('messages');
+const promptInput = document.getElementById('prompt-input') as HTMLInputElement;
+const sendBtn = document.getElementById('send-btn');
 
-saveBtn.addEventListener('click', async () => {
-  const keys = {
-    openai: openaiKeyInput.value,
-    gemini: geminiKeyInput.value,
-  };
-  await window.electronAPI.saveApiKeys(keys);
-  statusMessage.textContent = 'API keys saved successfully!';
-  setTimeout(() => (statusMessage.textContent = ''), 3000);
-});
+// This will hold the state of our conversation
+const conversationHistory: ChatMessage[] = [];
 
-// On page load, get existing keys and populate the fields
-async function loadApiKeys() {
-  const keys = await window.electronAPI.getApiKeys();
-  if (keys.openai) {
-    openaiKeyInput.value = keys.openai;
-  }
-  if (keys.gemini) {
-    geminiKeyInput.value = keys.gemini;
+// --- Functions ---
+function addMessageToUI(message: ChatMessage) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message', message.role);
+  messageElement.textContent = message.content;
+  messagesDiv.appendChild(messageElement);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to bottom
+}
+
+async function handleSendPrompt() {
+  const content = promptInput.value.trim();
+  if (!content) return;
+
+  const userMessage: ChatMessage = { role: 'user', content };
+  addMessageToUI(userMessage);
+  conversationHistory.push(userMessage);
+  promptInput.value = '';
+  promptInput.disabled = true;
+  sendBtn.disabled = true;
+
+  try {
+    const assistantMessage = await window.electronAPI.sendPrompt(conversationHistory);
+    addMessageToUI(assistantMessage);
+    conversationHistory.push(assistantMessage);
+  } catch (error) {
+    const errorMessage: ChatMessage = { role: 'assistant', content: `Error: ${error.message}` };
+    addMessageToUI(errorMessage);
+  } finally {
+    promptInput.disabled = false;
+    sendBtn.disabled = false;
+    promptInput.focus();
   }
 }
 
-loadApiKeys();
+// --- Event Listeners ---
+sendBtn.addEventListener('click', handleSendPrompt);
+promptInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    handleSendPrompt();
+  }
+});
