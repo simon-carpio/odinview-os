@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>OdinView - Settings</title>
+  </head>
+  <body>
+    <h1>API Key Management</h1>
+    <div>
+      <label for="openai-key">OpenAI API Key:</label>
+      <input type="password" id="openai-key" style="width: 400px;" />
+    </div>
+    <div style="margin-top: 10px;">
+      <label for="gemini-key">Gemini API Key:</label>
+      <input type="password" id="gemini-key" style="width: 400px;" />
+    </div>
+    <button id="save-btn" style="margin-top: 20px;">Save Keys</button>
+    <p id="status-message"></p>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
