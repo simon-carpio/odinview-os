@@ -2,8 +2,17 @@
   "name": "odinviewos",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist-electron/main/main.js",
   "scripts": {
+    "dev": "vite",
+    "build:renderer": "vite build",
+    "build:main": "tsc --project tsconfig.electron.json",
+    "build:preload": "tsc --project tsconfig.electron.json",
+    "build": "npm run build:renderer && npm run build:main && npm run build:preload",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron dist-electron/main/main.js\"",
+    "electron:build": "npm run build && electron-builder",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:win": "npm run build && electron-builder --win",
     "test": "jest"
   },
   "keywords": [],
@@ -11,17 +20,56 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
     "better-sqlite3": "^12.2.0",
-    "keytar": "^7.9.0"
+    "keytar": "^7.9.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^30.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.0",
+    "cross-env": "^10.0.0",
     "electron": "^37.2.5",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.32.0",
     "jest": "^30.0.5",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.1",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2",
+    "wait-on": "^8.0.4"
+  },
+  "build": {
+    "appId": "com.odinview.app",
+    "productName": "OdinView",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist-renderer/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    },
+    "win": {
+      "target": {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
