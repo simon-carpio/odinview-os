@@ -4,6 +4,10 @@ node_modules/
 # Build output
 dist/
 out/
+dist-electron/
+dist-renderer/
+release/
+.webpack/
 
 # Environment variables (Defense-in-depth)
 .env
