@@ -75,6 +75,19 @@ We welcome contributions! Please follow our development principles:
 2.  **Clean Architecture:** Maintain the strict separation between core logic, the main process, and the UI.
 3.  **Formal IPC:** Use the formal contracts defined in `src/shared/` for all main-renderer communication.
 
+## Troubleshooting
+
+### On Windows, `pnpm test` may fail
+
+**Symptom:** You may see an error like `'jest' is not recognized as an internal or external command`.
+
+**Cause:** This is a known environmental issue with Electron development on Windows where a background process can sometimes lock files in the `node_modules` directory after running `pnpm dev`.
+
+**Solution:**
+1.  Close all terminal windows and your code editor (e.g., VS Code) to ensure all Electron processes are terminated.
+2.  Run `pnpm install` again.
+3.  Run `pnpm test`. The tests should now execute correctly.
+
 ## License
 
 **MIT License**
