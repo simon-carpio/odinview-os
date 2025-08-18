@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist-electron/main/main.js",
   "scripts": {
+    "start": "npm run electron:dev",
     "dev": "vite",
     "build:renderer": "vite build",
     "build:main": "tsc --project tsconfig.electron.json",
@@ -19,6 +20,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "pnpm": ">=9.0.0"
+  },
   "dependencies": {
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
