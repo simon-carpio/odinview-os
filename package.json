@@ -14,7 +14,8 @@
     "electron:build": "pnpm run build && electron-builder",
     "build:mac": "pnpm run build && electron-builder --mac",
     "build:win": "pnpm run build && electron-builder --win",
-    "test": "jest"
+    "test": "pnpm test:core",
+    "test:core": "jest"
   },
   "keywords": [],
   "author": "",

@@ -75,18 +75,26 @@ We welcome contributions! Please follow our development principles:
 2.  **Clean Architecture:** Maintain the strict separation between core logic, the main process, and the UI.
 3.  **Formal IPC:** Use the formal contracts defined in `src/shared/` for all main-renderer communication.
 
-## Troubleshooting
+## Development and Testing Workflow
 
-### On Windows, `pnpm test` may fail
+Our project uses a Test-Driven Development (TDD) methodology. All core logic must be accompanied by Jest tests.
 
-**Symptom:** You may see an error like `'jest' is not recognized as an internal or external command`.
+### Running the Development Server
+To launch the application in development mode with hot-reloading:
+`pnpm dev`
 
-**Cause:** This is a known environmental issue with Electron development on Windows where a background process can sometimes lock files in the `node_modules` directory after running `pnpm dev`.
+### Running Tests
+Our tests are separated into suites. For the fastest feedback, run the suite specific to your changes.
 
-**Solution:**
-1.  Close all terminal windows and your code editor (e.g., VS Code) to ensure all Electron processes are terminated.
-2.  Run `pnpm install` again.
-3.  Run `pnpm test`. The tests should now execute correctly.
+**Important:** Before running tests, please **stop the development server** (`Ctrl+C` in the terminal running `pnpm dev`) to prevent file-locking issues, especially on Windows.
+
+**1. Core Logic Tests (Primary)**
+This runs fast, headless unit tests for our core business logic. This is the main test suite you will use.
+`pnpm test:core`
+
+**2. All Tests**
+This will run every test in the project.
+`pnpm test`
 
 ## License
 
