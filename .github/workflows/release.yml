@@ -6,18 +6,8 @@ on:
       - 'v*.*.*'  # Triggers on version tags like v0.1.0, v1.2.3, etc.
 
 jobs:
-  build-and-release:
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            platform: mac
-            artifact_name: "OdinView-${{ github.ref_name }}.dmg"
-          - os: windows-latest
-            platform: win
-            artifact_name: "OdinView-${{ github.ref_name }}.exe"
+  build-macos:
+    runs-on: macos-latest
     
     steps:
       - name: Checkout code
@@ -41,16 +31,49 @@ jobs:
         run: pnpm test
         
       - name: Build application
-        run: pnpm run build:${{ matrix.platform }}
+        run: pnpm run build:mac
         
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-build
+          name: macos-build
+          path: release/
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run tests
+        run: pnpm test
+        
+      - name: Build application
+        run: pnpm run build:win
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
           path: release/
           
   create-release:
-    needs: build-and-release
+    needs: [build-macos, build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -65,7 +88,7 @@ jobs:
           path: ./artifacts
           
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: "OdinView ${{ github.ref_name }}"
@@ -89,7 +112,7 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ./artifacts/mac-build/**/*
-            ./artifacts/win-build/**/*
+            ./artifacts/macos-build/**/*
+            ./artifacts/windows-build/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
